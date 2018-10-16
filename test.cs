@@ -1,4 +1,5 @@
 using System; 
+using System.Collections.Generic;
 using System.Threading.Tasks; 
 
 
@@ -7,6 +8,7 @@ namespace Simple
 { 
 	public class Bank 
 	{ 
+		private readonly object padlock = new object(); 
 
 		private int balance; 
 
@@ -22,21 +24,30 @@ namespace Simple
 			} 
 			set 
 			{ 
-				balance += value; 
+				lock(padlock)  
+				{
+					balance += value; 
+				} 
 			} 
 		} 
-		public int Withdraw  
+		public int Withdraw
 		{ 
 			get { 
 				return balance; 
 			} 
 			set { 
+					
+			lock(padlock) 
+				{		
 				if (value > balance) 
 				{		
 					throw new Exception ("Funds low!"); 
 				} 	
-				else 
-					balance -= value; 
+				else  
+				{ 
+						balance -= value; 
+				} 
+				} 
 			} 
 
 		} 
@@ -47,23 +58,36 @@ namespace Simple
 		public static void Main(string [] args) 
 		{ 
 			Bank b = new Bank(); 
-			b.Balance = 45; 
-			b.Balance = 15; 
+			/// List<Task> tsks = new List<Task>(); 
 
-
-			b.Withdraw = 45; 
-		
-		
 			Task tsk1 = new Task( delegate() { 
-						Console.WriteLine("new task!");
+						for(int i = 0; i < 20; i++) 
+						{ 
+							Console.WriteLine($"i = {i}");
+							b.Balance = 10; 
+
+						}
 			});  
+
+			Task tsk2 = new Task ( () => { 
+
+					for(int i = 0; i < 20; i++) 
+					{ 
+						
+						Console.WriteLine($"i = {i}"); 
+						b.Withdraw = 10; 
+					}
+
+			}); 
 			tsk1.Start(); 
-			Console.WriteLine($"Inside Main {0}"); 
+			tsk2.Start(); 
 			tsk1.Wait(); 
-
-
-
+			Console.WriteLine("Starts tsk2"); 
+			tsk2.Wait(); 
 			Console.WriteLine($"Final balance is {b.Balance}"); 
+
+
+
 		} 
 	}
 
