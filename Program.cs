@@ -5,10 +5,15 @@ namespace Dump
     class Program
     {
 		public delegate double myDel(int x); 
+
         static void Main(string[] args)
         {
+			Console.WriteLine("Enter a number:"); 
+			int number = 0; 
+
 			try { 
-				int number = Convert.ToInt32(Console.ReadLine()); 
+				string num = Console.ReadLine(); 
+				number = Convert.ToInt32(num); 
 			} 
 			catch (Exception e) 
 			{ 
@@ -18,9 +23,10 @@ namespace Dump
             Console.WriteLine("Hello World!");
 	
 			myDel addd = (x) => x + 10; 
-			Console.WriteLine(addd.Invoke(20)); 
+			Console.WriteLine($"The number {number} plus 10  is {addd.Invoke(number)}"); 
 
-			myDel counter = delegate(int x) { return Math.Pow(x, 10);}; 
+			myDel power = delegate(int x) { return Math.Pow(x, 10);}; 
+			Console.WriteLine($"The number {number} to power 10 is {power.Invoke(number)}"); 
         }
     }
 }
