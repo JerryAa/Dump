@@ -9,47 +9,33 @@ namespace Simple
 	public class Bank 
 	{ 
 		private readonly object padlock = new object(); 
-
 		private int balance; 
 
 		public Bank() 
 		{ 
 
 		} 
+		public void Withdraw(int amount) 
+		{ 
+			if (amount > balance ) 
+				throw new Exception("Funds too low!"); 
+			else 
+				Balance -= amount; 
+		} 
+		public void Deposit(int amount) 
+		{ 
+			Balance += amount; 
+		} 
 		public int Balance
 		{ 
+			set 
+			{ 
+				balance = value;
+			} 
 			get
 			{	
 				return balance;  
 			} 
-			set 
-			{ 
-				lock(padlock)  
-				{
-					balance += value; 
-				} 
-			} 
-		} 
-		public int Withdraw
-		{ 
-			get { 
-				return balance; 
-			} 
-			set { 
-					
-			lock(padlock) 
-				{		
-				if (value > balance) 
-				{		
-					throw new Exception ("Funds low!"); 
-				} 	
-				else  
-				{ 
-						balance -= value; 
-				} 
-				} 
-			} 
-
 		} 
 	} 
 	public class Run
@@ -58,13 +44,11 @@ namespace Simple
 		public static void Main(string [] args) 
 		{ 
 			Bank b = new Bank(); 
-			/// List<Task> tsks = new List<Task>(); 
-
 			Task tsk1 = new Task( delegate() { 
 						for(int i = 0; i < 20; i++) 
 						{ 
 							Console.WriteLine($"i = {i}");
-							b.Balance = 10; 
+							b.Deposit(10); 
 
 						}
 			});  
@@ -75,7 +59,7 @@ namespace Simple
 					{ 
 						
 						Console.WriteLine($"i = {i}"); 
-						b.Withdraw = 10; 
+						b.Withdraw(10); 
 					}
 
 			}); 
