@@ -17,18 +17,21 @@ namespace Simple
 		} 
 		public void Withdraw(int amount) 
 		{ 
-			if (amount > balance ) 
-				throw new Exception("Funds too low!"); 
-			else 
-				Balance -= amount; 
+				lock(padlock) 
+				{ 
+					Balance -= amount; 
+				} 
 		} 
 		public void Deposit(int amount) 
 		{ 
-			Balance += amount; 
+			lock(padlock) 
+			{ 
+				Balance += amount; 
+			}
 		} 
 		public int Balance
 		{ 
-			set 
+			private set 
 			{ 
 				balance = value;
 			} 
@@ -44,29 +47,29 @@ namespace Simple
 		public static void Main(string [] args) 
 		{ 
 			Bank b = new Bank(); 
-			Task tsk1 = new Task( delegate() { 
+			Task tsk1 = Task.Factory.StartNew( () => 
+			{  
 						for(int i = 0; i < 20; i++) 
 						{ 
-							Console.WriteLine($"i = {i}");
+							// Console.WriteLine($"i = {i}");
 							b.Deposit(10); 
 
 						}
 			});  
 
-			Task tsk2 = new Task ( () => { 
+			Task tsk2 = Task.Factory.StartNew( () => 
+			{   
 
 					for(int i = 0; i < 20; i++) 
 					{ 
 						
-						Console.WriteLine($"i = {i}"); 
 						b.Withdraw(10); 
 					}
 
 			}); 
-			tsk1.Start(); 
-			tsk2.Start(); 
+
 			tsk1.Wait(); 
-			Console.WriteLine("Starts tsk2"); 
+			Console.WriteLine($"Task Id {tsk1.Id}"); 
 			tsk2.Wait(); 
 			Console.WriteLine($"Final balance is {b.Balance}"); 
 
